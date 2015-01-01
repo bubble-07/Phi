@@ -41,18 +41,19 @@ fragment ESC : '\\"' | '\\\\';
 INT_CONST: [0-9]+;
 FLOAT_CONST: [0-9]* ('.')? [0-9]+ ([Ee] [+-]? [0-9]+)?;
 
-//Note: for now, just hope the above have munched up the bad characters.
-
-//Identifiers consist of a non-illegal, non-numeric character, followed by any number of non-illegal characters
-ID : ~([ \t\n\r] | [0-9]) ~[ \t\n\r]*;
-
 //Line comments
 LC : '//' ~[\r\n]* '\r'? '\n' -> skip;
 //Nested comments
 NC : ( '/*' .*? ~[\\] '*/' | '/**/') -> skip;
 
 //Newline
-NL : '\r'? '\n';
+NL : '\r'? '\n' [ \t]*;
+
+//Note: for now, just hope the above have munched up the bad characters.
+
+//Identifiers consist of a non-illegal, non-numeric character, followed by any number of non-illegal characters
+
+ID : ~[\(\)\[\]\{\} \t\n\r0-9] ~[\(\)\[\]\{\} \t\n\r]*;
 
 //Whitespace
 //Note: Don't want to skip! It's significant!
@@ -83,9 +84,9 @@ dotapp : dotitem (DOT dotitem)*;
 
 blockitems : blockapp | listitems;
 
-blockapp : ID SPACE listitems optspace NL INDENT blocklines DEDENT;
+blockapp : ID SPACE listitems optspace INDENT blocklines DEDENT;
 blocklines : blockline+;
 
-blockline : blockitems optspace NL;
+blockline : blockitems optspace (NL | EOF) (NL | SPACE)*;
 
 start : blocklines EOF;
