@@ -1,7 +1,12 @@
 grammar PHI;
 
+@parser::header {
+    package phi;
+}
+
 tokens { INDENT, DEDENT }
 @lexer::header {
+    package phi;
     import com.yuvalshavit.antlr4.DenterHelper;
 }
 
