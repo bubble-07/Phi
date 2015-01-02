@@ -31,7 +31,7 @@ public class PhiParseVisitor extends AbstractParseTreeVisitor<Node>
     }
     @Override
     public Node visitBlocklines(PHIParser.BlocklinesContext ctxt) {
-        return topLevelify(ctxt.getRuleContexts(PHIParser.BlocklineContext.class), "BlockLines");
+        return topLevelify(ctxt.getRuleContexts(PHIParser.BlocklineContext.class), "Expr");
     }
     @Override
     public Node visitBlockline(PHIParser.BlocklineContext ctxt) {
@@ -40,17 +40,36 @@ public class PhiParseVisitor extends AbstractParseTreeVisitor<Node>
     }
     @Override
     public Node visitBlockitems(PHIParser.BlockitemsContext ctxt) {
-        //Just passes right through
-        return visit(ctxt.getRuleContext(ParserRuleContext.class, 0));
+        //Just passes right through, but remove extra parens if there are any
+        Node result =  visit(ctxt.getRuleContext(ParserRuleContext.class, 0));
+        if (result.children.size() == 1) {
+            return result.children.get(0);
+        }
+        return result;
     }
     @Override
+    //TODO: better documentation, error handling
     public Node visitBlockapp(PHIParser.BlockappContext ctxt) {
-        Node id = new Node(ctxt.ID().getText());
-        Node header = visit(ctxt.listitems());
+        Node id = visit(ctxt.dotapp());
+
+        Node result = new Node("Expr").add(id);
+
+        if (ctxt.listitems() != null) {
+            Node header = visit(ctxt.listitems());
+            //Remove extraneous parens, if there are any
+            if (header.children.size() == 1) {
+                header = header.children.get(0);
+            }
+            result = result.add(header);
+        }
+
         Node body = visit(ctxt.blocklines());
-        //TODO: actually format this right!
-        Node result = new Node("BlockApp");
-        return result.add(id).add(header).add(body);
+
+        for (Node child : body.children) {
+            result.add(child);
+        }
+
+        return result;
     }
     @Override
     public Node visitListitems(PHIParser.ListitemsContext ctxt) {
@@ -62,9 +81,17 @@ public class PhiParseVisitor extends AbstractParseTreeVisitor<Node>
         return visit(ctxt.getRuleContext(ParserRuleContext.class, 0));
     }
     @Override
+    //TODO: Document this, expand error handling
     public Node visitDotapp(PHIParser.DotappContext ctxt) {
-        //TODO: Actually implement this!
-        return topLevelify(ctxt.getRuleContexts(PHIParser.DotitemContext.class), "DotApp");
+        Node in = topLevelify(ctxt.getRuleContexts(PHIParser.DotitemContext.class), "DotApp");
+        if (in.children.size() == 1) {
+            return in.children.get(0);
+        }
+        Node result = new Node("Expr").add(in.children.get(1)).add(in.children.get(0));
+        for (int i = 2; i < in.children.size(); i++) {
+            result = new Node("Expr").add(in.children.get(i)).add(result);
+        }
+        return result;
     }
     @Override
     public Node visitDotitem(PHIParser.DotitemContext ctxt) {
@@ -75,11 +102,16 @@ public class PhiParseVisitor extends AbstractParseTreeVisitor<Node>
         return new Node(ctxt.getText());
     }
     @Override
+    //TODO: Document and expand error handling
     public Node visitFunapp(PHIParser.FunappContext ctxt) {
         //TODO: actually implement this!
         Node id = new Node(ctxt.ID().getText());
         Node funitems = visit(ctxt.funitems());
-        return new Node("FunApp").add(id).add(funitems);
+        Node result = new Node("Expr").add(id);
+        for (Node arg : funitems.children) {
+            result.add(arg);
+        }
+        return result;
     }
     @Override
     //TODO: Actually implement this!

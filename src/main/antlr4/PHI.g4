@@ -57,7 +57,7 @@ ID : ~[\(\)\[\]\{\} \t\n\r0-9] ~[\(\)\[\]\{\} \t\n\r]*;
 
 //Whitespace
 //Note: Don't want to skip! It's significant!
-SPACE : [ \t\n\r]+;
+SPACE : [ \t]+;
 
 aspace : SPACE | NL | INDENT | DEDENT;
 
@@ -84,7 +84,7 @@ dotapp : dotitem (DOT dotitem)*;
 
 blockitems : blockapp | listitems;
 
-blockapp : ID SPACE listitems optspace INDENT blocklines DEDENT;
+blockapp : dotapp (SPACE listitems)? optspace INDENT blocklines DEDENT;
 blocklines : blockline+;
 
 blockline : blockitems optspace (NL | EOF) (NL | SPACE)*;
