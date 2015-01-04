@@ -12,6 +12,10 @@ public class Node {
         this.children.add(child);
         return this;
     }
+    public Node addToBegin(Node child) {
+        this.children.add(0, child);
+        return this;
+    }
 
     //Helper method to convert to the serialization format
     private String serializeRecursive(String in) {

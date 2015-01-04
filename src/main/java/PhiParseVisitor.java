@@ -15,6 +15,37 @@ import java.util.*;
 public class PhiParseVisitor extends AbstractParseTreeVisitor<Node>
                     implements PHIVisitor<Node> {
         
+    private boolean isPrim(String in) {
+        switch (in) {
+            case "Def": case "Lambda": case "Subs":
+            case "Sups": case "Let": case "Namespace":
+            case "Type":
+                return true;
+        }
+        return false;
+    }
+
+    //Reorders primitives in the children of the node to the applicative position
+    private Node reorderPrims(Node in) {
+        Node result = new Node(in.label);
+        int i = 0;
+        for (i = 0; i < in.children.size(); i++) {
+            if (isPrim(in.children.get(i).label)) {
+                //If it's a primitive, put it at the beginning
+                result.addToBegin(in.children.get(i));
+                //Step over to the next element
+                i++;
+                break;
+            }
+            result.add(in.children.get(i));
+        }
+        //Add the rest in
+        for (; i < in.children.size(); i++) {
+            result.add(in.children.get(i));
+        }
+        return result;
+    }
+
     //Helper that takes a list of arguments and a label, and produces
     //(label arg1 arg2 arg3 arg4...), where all arguments are visited
     private <T extends ParserRuleContext> Node topLevelify(List<T> list, String label) {
@@ -73,7 +104,8 @@ public class PhiParseVisitor extends AbstractParseTreeVisitor<Node>
     }
     @Override
     public Node visitListitems(PHIParser.ListitemsContext ctxt) {
-        return topLevelify(ctxt.getRuleContexts(PHIParser.ListitemContext.class), "ReorderableExpr");
+        Node result = topLevelify(ctxt.getRuleContexts(PHIParser.ListitemContext.class), "ReorderableExpr");
+        return reorderPrims(result);
     }
     @Override
     public Node visitListitem(PHIParser.ListitemContext ctxt) {
@@ -150,7 +182,8 @@ public class PhiParseVisitor extends AbstractParseTreeVisitor<Node>
     }
     @Override
     public Node visitAlistitems(PHIParser.AlistitemsContext ctxt) {
-        return topLevelify(ctxt.getRuleContexts(PHIParser.ListitemContext.class), "ReorderableExpr");
+        Node result = topLevelify(ctxt.getRuleContexts(PHIParser.ListitemContext.class), "ReorderableExpr");
+        return reorderPrims(result);
     }
     @Override
     public Node visitSexpr(PHIParser.SexprContext ctxt) {

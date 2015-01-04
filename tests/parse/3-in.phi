@@ -1,0 +1,6 @@
+def foo
+    seq
+        print "hi"
+        print 5.0
+
+        print 5

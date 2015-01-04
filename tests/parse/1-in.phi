@@ -1,0 +1,2 @@
+def (int +) (int a) (int b)
+    +int32 a b
