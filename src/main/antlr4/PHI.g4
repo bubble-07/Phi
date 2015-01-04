@@ -35,6 +35,25 @@ RSQBRACKET : ']' ;
 COMMA : ',';
 DOT : '.';
 
+//TODO: add parser support!
+DEF : 'def' | 'define';
+SUBS : '<:' | 'subs' | 'subtypes';
+SUPS : ':>' | 'sups' | 'supertypes';
+TYPE : 'type';
+NAMESPACE : 'namespace';
+LAMBDA : 'lambda' | '\\';
+LET : 'let';
+
+def : DEF;
+subs : SUBS;
+sups : SUPS;
+type : TYPE;
+namespace : NAMESPACE;
+lambda : LAMBDA;
+let : LET;
+
+reservedword : def | subs | sups | type | namespace | lambda | let;
+
 STRING_CONST: '"' (ESC|.)*? '"';
 fragment ESC : '\\"' | '\\\\';
 
@@ -55,7 +74,7 @@ NL : '\r'? '\n' [ \t]*;
 
 ID : ~[\(\)\[\]\{\} \t\n\r0-9] ~[\(\)\[\]\{\} \t\n\r]*;
 
-identifier: ID;
+identifier: ID | reservedword;
 intconst: INT_CONST;
 floatconst: FLOAT_CONST;
 stringconst: STRING_CONST;

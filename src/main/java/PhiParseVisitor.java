@@ -73,7 +73,7 @@ public class PhiParseVisitor extends AbstractParseTreeVisitor<Node>
     }
     @Override
     public Node visitListitems(PHIParser.ListitemsContext ctxt) {
-        return topLevelify(ctxt.getRuleContexts(PHIParser.ListitemContext.class), "Expr");
+        return topLevelify(ctxt.getRuleContexts(PHIParser.ListitemContext.class), "ReorderableExpr");
     }
     @Override
     public Node visitListitem(PHIParser.ListitemContext ctxt) {
@@ -103,9 +103,18 @@ public class PhiParseVisitor extends AbstractParseTreeVisitor<Node>
         return visit(ctxt.getRuleContext(ParserRuleContext.class, 0));
     }
     @Override
-    public Node visitIdentifier(PHIParser.IdentifierContext ctxt) {
-        return new Node("ID").add(new Node(ctxt.getText()));
+    public Node visitReservedword(PHIParser.ReservedwordContext ctxt) {
+        return visit(ctxt.getRuleContext(ParserRuleContext.class, 0));
     }
+    @Override
+    public Node visitIdentifier(PHIParser.IdentifierContext ctxt) {
+        if (ctxt.reservedword() == null) {
+            //if not a reserved word, log as an identifier
+            return new Node("ID").add(new Node(ctxt.getText()));
+        }
+        return visit(ctxt.getRuleContext(ParserRuleContext.class, 0));
+    }
+        
     @Override
     public Node visitIntconst(PHIParser.IntconstContext ctxt) {
         return new Node("Intconst").add(new Node(ctxt.getText()));
@@ -141,12 +150,49 @@ public class PhiParseVisitor extends AbstractParseTreeVisitor<Node>
     }
     @Override
     public Node visitAlistitems(PHIParser.AlistitemsContext ctxt) {
-        return topLevelify(ctxt.getRuleContexts(PHIParser.ListitemContext.class), "Expr");
+        return topLevelify(ctxt.getRuleContexts(PHIParser.ListitemContext.class), "ReorderableExpr");
     }
     @Override
     public Node visitSexpr(PHIParser.SexprContext ctxt) {
         return visit(ctxt.getRuleContext(PHIParser.ApaddeditemsContext.class, 0));
     }
+
+    @Override
+    public Node visitDef(PHIParser.DefContext ctxt) {
+        return new Node("Def");
+    }
+
+    @Override
+    public Node visitSups(PHIParser.SupsContext ctxt) {
+        return new Node("Sups");
+    }
+
+
+    @Override
+    public Node visitSubs(PHIParser.SubsContext ctxt) {
+        return new Node("Subs");
+    }
+
+    @Override
+    public Node visitType(PHIParser.TypeContext ctxt) {
+        return new Node("Type");
+    }
+
+    @Override
+    public Node visitNamespace(PHIParser.NamespaceContext ctxt) {
+        return new Node("Namespace");
+    }
+
+    @Override
+    public Node visitLambda(PHIParser.LambdaContext ctxt) {
+        return new Node("Lambda");
+    }
+
+    @Override
+    public Node visitLet(PHIParser.LetContext ctxt) {
+        return new Node("Let");
+    }
+
     //TODO: elim in some way
     @Override
     public Node visitAspace(PHIParser.AspaceContext ctxt) {

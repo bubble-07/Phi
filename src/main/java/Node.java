@@ -47,7 +47,10 @@ public class Node {
 
     public boolean equals(Node other) {
         if (!this.label.equals(other.label)) {
-            return false;
+            if (!((this.label.equals("Expr") && other.label.equals("ReorderableExpr")) ||
+                this.label.equals("ReorderableExpr") && other.label.equals("Expr"))) {
+                return false;
+            }
         }
         if (other.children.size() != this.children.size()) {
             return false;
