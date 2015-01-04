@@ -55,6 +55,11 @@ NL : '\r'? '\n' [ \t]*;
 
 ID : ~[\(\)\[\]\{\} \t\n\r0-9] ~[\(\)\[\]\{\} \t\n\r]*;
 
+identifier: ID;
+intconst: INT_CONST;
+floatconst: FLOAT_CONST;
+stringconst: STRING_CONST;
+
 //Whitespace
 //Note: Don't want to skip! It's significant!
 SPACE : [ \t]+;
@@ -72,12 +77,11 @@ listitems : listitem (SPACE listitem)*;
 
 listitem : dotapp | sexpr;
 
-funapp : ID LPAREN funitems RPAREN;
+funapp : identifier LPAREN funitems RPAREN;
 
 funitems : apaddeditems (COMMA apaddeditems)*;
 
-item : ID | INT_CONST | FLOAT_CONST | STRING_CONST;
-
+item: identifier | intconst | floatconst | stringconst;
 dotitem : funapp | item;
 
 dotapp : dotitem (DOT dotitem)*;

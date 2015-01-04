@@ -99,13 +99,30 @@ public class PhiParseVisitor extends AbstractParseTreeVisitor<Node>
     }
     @Override
     public Node visitItem(PHIParser.ItemContext ctxt) {
-        return new Node(ctxt.getText());
+        //Just passthrough
+        return visit(ctxt.getRuleContext(ParserRuleContext.class, 0));
+    }
+    @Override
+    public Node visitIdentifier(PHIParser.IdentifierContext ctxt) {
+        return new Node("ID").add(new Node(ctxt.getText()));
+    }
+    @Override
+    public Node visitIntconst(PHIParser.IntconstContext ctxt) {
+        return new Node("Intconst").add(new Node(ctxt.getText()));
+    }
+    @Override
+    public Node visitStringconst(PHIParser.StringconstContext ctxt) {
+        return new Node("Stringconst").add(new Node(ctxt.getText()));
+    }
+    @Override
+    public Node visitFloatconst(PHIParser.FloatconstContext ctxt) {
+        return new Node("Floatconst").add(new Node(ctxt.getText()));
     }
     @Override
     //TODO: Document and expand error handling
     public Node visitFunapp(PHIParser.FunappContext ctxt) {
         //TODO: actually implement this!
-        Node id = new Node(ctxt.ID().getText());
+        Node id = visit(ctxt.identifier());
         Node funitems = visit(ctxt.funitems());
         Node result = new Node("Expr").add(id);
         for (Node arg : funitems.children) {
