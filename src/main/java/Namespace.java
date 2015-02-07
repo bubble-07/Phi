@@ -24,6 +24,10 @@ public class Namespace {
     //TODO: REMOVE ME!
     public void loadStdLib() {
         functable.put("+int32", new Function());
+        functable.put("*", new Function());
+        functable.put("if", new Function());
+        functable.put("-", new Function());
+        functable.put("==", new Function());
     }
 
     public void loadFuncName(Node in) {

@@ -11,9 +11,15 @@ public abstract class Expression {
                 return new Apply(in, ctxt);
             case "ID":
                 return ctxt.getExprFromName(in.children.get(0).label);
-            //TODO: actually flesh out the types of constants n' stuff
+            case "Intconst":
+                return new IntConst(in);
+            case "Floatconst":
+                return new FloatConst(in);
+            case "Stringconst":
+                return new StringConst(in);
             default:
-                return new Constant(in.children.get(0).label);
+                //TODO: error!
+                return null;
         }
     }
 
