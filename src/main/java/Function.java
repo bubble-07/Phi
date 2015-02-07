@@ -2,40 +2,49 @@ package phi;
 import phi.*;
 import java.util.*;
 
-public class Function {
+public class Function extends Expression {
+    Context parentContext = null;
     String name = null;
     ArrayList<Parameter> params = new ArrayList(); 
     Environment env = new Environment();
     Expression body = null;
     Type retType = null;
 
-    public Function(String name, ArrayList<Parameter> params, Expression body) {
+    public Function(String name, ArrayList<Parameter> params, Expression body, Context parent) {
         this.name = name;
         this.params = params;
         this.body = body;
+        parentContext = parent;
     }
     //Initialize a function from a definition in a Node
-    public Function(Node in) {
+    public Function(Node in, Context ctxt) {
+        parentContext = ctxt;
         Node paramAndNamePart = in.children.get(1);
         Node exprPart = in.children.get(2);
         loadParams(paramAndNamePart);
         loadName(paramAndNamePart);
-        //TODO: actually load the body!
-        body = null;
+        body = Expression.loadExpression(exprPart, ctxt);
     }
+
+    //Given the parameter and name node, get the name of the function
+    public static String getNameFromDef(Node in) {
+        Node nameNode = in.children.get(0);
+        if (nameNode.children.size() > 1) {
+            return Common.getIdentifier(nameNode.children.get(1));
+        }
+        //Otherwise, type was not specified
+        return Common.getIdentifier(nameNode);
+    }
+
     //Loads the name of the function and its return type
     private void loadName(Node in) {
+        name = getNameFromDef(in);
         Node nameNode = in.children.get(0);
         if (nameNode.children.size() > 1) {
             //Must have specified a return type
-            name = Common.getIdentifier(nameNode.children.get(1));
             String type = Common.getIdentifier(nameNode.children.get(0));
             //TODO: better associate with types
             retType = new Type(type);
-        }
-        else {
-            //Must not have specified a return type
-            name = Common.getIdentifier(nameNode);
         }
     }
     //Loads parameters from the parameter part of the expression
@@ -57,5 +66,8 @@ public class Function {
     }
     public String toString() {
         return name;
+    }
+    public String bodyToString() {
+        return body.toString();
     }
 }

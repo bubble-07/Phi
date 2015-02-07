@@ -19,7 +19,7 @@ public class Main {
         System.out.println(argv[0]);
         Node AST = parse(fileToString(argv[0]));
         System.out.println(AST);
-        PhiDefLoader defs = new PhiDefLoader(AST);
+        Namespace defs = new Namespace(AST);
         System.out.println(defs.toString());
     }
     public static Node parse(String in) throws Exception {
