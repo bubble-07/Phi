@@ -21,6 +21,7 @@ public class Main {
         System.out.println(AST);
         Namespace defs = new Namespace(AST);
         System.out.println(defs.toString());
+        TypeInferer i = new TypeInferer(); 
     }
     public static Node parse(String in) throws Exception {
         //TODO: add error handling!
