@@ -10,25 +10,26 @@ public class Function extends Expression {
     Expression body = null;
     Type retType = null;
 
-    public Function(String name, ArrayList<Parameter> params, Expression body, Context parent) {
-        this.name = name;
-        this.params = params;
-        this.body = body;
-        parentContext = parent;
+    //Just creates an empty function, for the sake of permanent reference
+    public Function() {
     }
+
     //Initialize a function from a definition in a Node
-    public Function(Node in, Context ctxt) {
+    public void loadFromDef(Node in, Context ctxt) {
+        env = new Environment(ctxt.env);
         parentContext = ctxt;
         Node paramAndNamePart = in.children.get(1);
         Node exprPart = in.children.get(2);
         loadParams(paramAndNamePart);
         loadName(paramAndNamePart);
-        body = Expression.loadExpression(exprPart, ctxt);
+        Context bodyCtxt = new Context(ctxt.namespace, env);
+        body = Expression.loadExpression(exprPart, bodyCtxt);
     }
 
     //Given the parameter and name node, get the name of the function
     public static String getNameFromDef(Node in) {
-        Node nameNode = in.children.get(0);
+        Node paramAndNameNode = in.children.get(1);
+        Node nameNode = paramAndNameNode.children.get(0);
         if (nameNode.children.size() > 1) {
             return Common.getIdentifier(nameNode.children.get(1));
         }
@@ -48,6 +49,7 @@ public class Function extends Expression {
         }
     }
     //Loads parameters from the parameter part of the expression
+    //TODO: Load stuff into the environment, too
     private void loadParams(Node in) {
         for (int i = 1; i < in.children.size(); i++) {
             Node paramNode = in.children.get(i);
@@ -56,18 +58,28 @@ public class Function extends Expression {
                 String name = Common.getIdentifier(paramNode.children.get(1));
                 String type = Common.getIdentifier(paramNode.children.get(0));
                 params.add(new Parameter(name, type, env));
+                //TODO: expand with type information
+                env.add(name, null);
             }
             else {
                 //Must be just a name;
-                //TODO: extend environment, too
-                params.add(new Parameter(Common.getIdentifier(paramNode), env));
+                String name = Common.getIdentifier(paramNode);
+                params.add(new Parameter(name, env));
+                env.add(name, null);
             }
         }
     }
     public String toString() {
-        return name;
+        if (name != null) {
+            return name;
+        }
+        return "builtin"; //TODO: Remove me!
     }
+    //TODO: also print out arguments
     public String bodyToString() {
-        return body.toString();
+        if (body != null) {
+            return body.toString();
+        }
+        return "body empty!"; //TODO: better error handling
     }
 }

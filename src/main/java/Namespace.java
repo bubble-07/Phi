@@ -12,18 +12,24 @@ public class Namespace {
     public Namespace(Node in) {
         //First, load in all of the names of the functions (so reordering can occur)
         for (Node def : in.children) {
-            loadFuncName(in);
+            loadFuncName(def);
         }
+        //TODO: REMOVE THIS
+        loadStdLib();
         for (Node def : in.children) {
             loadTopDef(def);
         }
     }
 
+    //TODO: REMOVE ME!
+    public void loadStdLib() {
+        functable.put("+int32", new Function());
+    }
+
     public void loadFuncName(Node in) {
         if (in.children.get(0).label.equals("Def")) {
-            Node paramAndNameNode = in.children.get(1);
-            //Just load the function table with null functions
-            functable.put(Function.getNameFromDef(paramAndNameNode), null);
+            //Just load the function table with an empty function
+            functable.put(Function.getNameFromDef(in), new Function());
         }
     }
     //Discriminates between top level definition cases
@@ -43,8 +49,8 @@ public class Namespace {
         }
     }
     private void loadFuncDef(Node in) {
-        Function f = new Function(in, new Context(this, null));
-        functable.put(f.name, f);
+        Function f = functable.get(Function.getNameFromDef(in));
+        f.loadFromDef(in, new Context(this, null));
     }
     private void loadTypeDef(Node in) {
         Type t = new Type(in.label);

@@ -9,6 +9,8 @@ public abstract class Expression {
                 return loadExpression(reorderExpression(in, ctxt), ctxt);
             case "Expr":
                 return new Apply(in, ctxt);
+            case "ID":
+                return ctxt.getExprFromName(in.children.get(0).label);
             //TODO: actually flesh out the types of constants n' stuff
             default:
                 return new Constant(in.children.get(0).label);
