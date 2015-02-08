@@ -22,4 +22,7 @@ public class Type {
         //TODO: Expand definition of equality
         return this.name.equals(other.name);
     }
+    public int hashCode() {
+        return this.name.hashCode();
+    }
 }

@@ -42,67 +42,44 @@ public class TypeApply extends TypeExpression {
     }
 
     //Note: This will need to use the either type to intersect them
+    //The idea is to search breadth-first, and only add upon the first time
     public static TypeApply intersect(TypeApply a, TypeApply b) {
-        //Represents a mapping from types to the trees they were first
-        //found in 0: a, 1: b
-        HashMap<TypeApply, Boolean> found = new HashMap();
-        found.put(a, false);
-        //TODO: Check for collision
-        found.put(b, true);
-        return Common.OptionType(intersectRecursive(found, a, b, true));
-    }
-    //Recursive helper
-    //TODO: fixme!
-    //Note: If expandA is true, A will be expanded and compared against B. Else, the reverse is true
-    //TODO: Switch to a queue
-    private static ArrayList<TypeExpression> intersectRecursive(HashMap<TypeApply, Boolean> found, TypeApply a, TypeApply b, boolean expandA) {
-        System.out.println(a);
-        System.out.println(b);
-        System.out.println("");
-
+        class FlaggedNode {
+            TypeApply val;
+            boolean flag;
+            FlaggedNode(TypeApply val, boolean flag) {
+                this.val = val;
+                this.flag = flag;
+            }
+        }
         ArrayList<TypeExpression> result = new ArrayList();
-
-        //Special case: a = b. Then terminate
-        if (a.equals(b)) {
-            result.add(a);
-            found.put(a, true);
-            return result;
-        }
-
-        ArrayList<TypeExpression> subtypes = null;
-        if (expandA) {
-            subtypes = a.constructor.lattice.getImmediateSubtypes(a);
-        }
-        else {
-            subtypes = b.constructor.lattice.getImmediateSubtypes(b);
-        }
-        for (TypeExpression subExpr : subtypes) {
-            //TODO: Better types!
-            TypeApply sub = (TypeApply) subExpr;
-
-            Boolean foundIn = found.get(sub);
-            if (foundIn == null) {
-                //If it was not found, explore the child
-                if (expandA) {
-                    found.put(sub, false);
-                    result.addAll(intersectRecursive(found, sub, b, !expandA));
-                }
-                else {
-                    found.put(sub, true);
-                    result.addAll(intersectRecursive(found, a, sub, !expandA));
+        Queue<FlaggedNode> Q = new LinkedList();
+        HashMap<TypeApply, Boolean> loc = new HashMap();
+        Q.add(new FlaggedNode(a, false));
+        Q.add(new FlaggedNode(b, true));
+        //While there are things in the queue
+        while (Q.peek() != null) {
+            FlaggedNode current = Q.remove();
+            if (loc.containsKey(current.val)) {
+                //If we've seen it before
+                boolean otherFlag = loc.get(current.val);
+                if (current.flag != otherFlag) {
+                    //Great, we have something in the intersection
+                    result.add(current.val);
                 }
             }
-            //If we've already found the type in the other tree
-            else if (foundIn.equals(expandA)) {
-                //Add it to the result
-                result.add(sub); 
-            }
-            //Otherwise, must've found it in our own tree
             else {
-                //Don't do anything
+                //Must not have seen it before. Log it
+                loc.put(current.val, current.flag);
+                //Then, add all of its children to the queue
+                ArrayList<TypeExpression> immediateSubtypes = current.val.constructor.lattice.getImmediateSubtypes(current.val);
+                for (TypeExpression subExpr : immediateSubtypes) {
+                    TypeApply sub = (TypeApply) subExpr;
+                    Q.add(new FlaggedNode(sub, current.flag));
+                }
             }
         }
-        return result;
+        return Common.OptionType(result);
     }
     public boolean equals(Object other) {
         if (other instanceof TypeApply) {
@@ -127,6 +104,15 @@ public class TypeApply extends TypeExpression {
             }
         }
         return true;
+    }
+
+    public int hashCode() {
+        int result = constructor.hashCode();
+        for (TypeExpression arg : args) {
+            TypeApply argApply = (TypeApply) arg;
+            result += argApply.hashCode();
+        }
+        return result;
     }
 
     public String toString() {
