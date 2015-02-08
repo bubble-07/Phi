@@ -22,6 +22,7 @@ public class TypeInferer {
         quickSubtype(Number, Any);
         quickSubtype(Float, Number);
         quickSubtype(Int, Number);
+        //TODO: Add subtyping for Either type
     }
     public void quickSubtype(Type sub, Type sup) {
         sup.lattice.subtypes.add(new TypeMap(new TypeApply(sup), new TypeApply(sub)));

@@ -10,5 +10,11 @@ public class Common {
     static TypeApply OptionType(ArrayList<TypeExpression> options) {
         return new TypeApply(Either, options);
     }
+    static TypeApply OptionType(TypeExpression a, TypeExpression b) {
+        ArrayList<TypeExpression> args = new ArrayList();
+        args.add(a);
+        args.add(b);
+        return new TypeApply(Either, args);
+    }
     static Type Either = new Type("Either");
 }
