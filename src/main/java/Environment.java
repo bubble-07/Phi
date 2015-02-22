@@ -3,7 +3,7 @@ import java.util.*;
 import phi.*;
 
 public class Environment {
-    HashMap<String, TypedExpr> context = new HashMap();
+    HashMap<String, TypeExpression> context = new HashMap();
     Environment parent = null;
 
     public Environment() {
@@ -13,11 +13,11 @@ public class Environment {
         this.parent = parent;
     }
 
-    public void add(String name, TypedExpr expr) {
+    public void add(String name, TypeExpression expr) {
         this.context.put(name, expr);
     }
 
-    public Environment(HashMap<String, TypedExpr> ctxt, Environment parent) {
+    public Environment(HashMap<String, TypeExpression> ctxt, Environment parent) {
         context = ctxt;
         this.parent = parent;
     }
@@ -33,7 +33,7 @@ public class Environment {
         return false;
     }
     
-    public TypedExpr get(String in) {
+    public TypeExpression get(String in) {
         if (context.containsKey(in)) {
             return context.get(in);
         }

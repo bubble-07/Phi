@@ -9,11 +9,16 @@ public class TypeInferer {
     Type Int;
     Type Number;
 
-    public TypeInferer() {
+    public TypeInferer(Namespace in) {
         loadStdlibTypes();
         System.out.println(TypeApply.intersect(new TypeApply(Number), new TypeApply(Any)));
         System.out.println((new TypeApply(Any)).subtypes(new TypeApply(Number)));
+        for (Function f : in.functable.values()) {
+            inferFunction(f);
+        }
     }
+
+
     public void loadStdlibTypes() {
         Any = new Type("Any");
         Number = new Type("Number");

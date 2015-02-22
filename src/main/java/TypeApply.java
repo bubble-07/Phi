@@ -83,7 +83,7 @@ public class TypeApply extends TypeExpression {
                 addAllSubtypes(Q, current); 
             }
         }
-        //Iterate through the primary index and intersect with the secondary
+        //Iterate through the secondary index and intersect with the primary
         for (Type key : secondary.keySet()) {
             result.add(argIntersect(primary.get(key), secondary.get(key)));
         }
