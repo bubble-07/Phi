@@ -1,6 +1,6 @@
 package phi;
 
-import phi.*;
+import phi.antlr.*;
 import java.io.*;
 import java.nio.file.*;
 
@@ -15,13 +15,20 @@ public class Main {
     }
 
     public static void main(String[] argv) throws Exception {
-        System.out.println("File to be loaded from is first arg");
-        System.out.println(argv[0]);
-        Node AST = parse(fileToString(argv[0]));
+    	String filename;
+    	if (argv.length == 0) {
+    		filename = "tests/parse/1-in.phi";
+    	}
+    	else {
+    		System.out.println("File to be loaded from is first arg");
+    		System.out.println(argv[0]);
+    		filename = argv[0];
+    	}
+        Node AST = parse(fileToString(filename));
         System.out.println(AST);
         Namespace defs = new Namespace(AST);
         System.out.println(defs.toString());
-        TypeInferer i = new TypeInferer(); 
+        TypeInferer i = new TypeInferer(defs); 
     }
     public static Node parse(String in) throws Exception {
         //TODO: add error handling!

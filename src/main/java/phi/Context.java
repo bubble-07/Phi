@@ -1,5 +1,4 @@
 package phi;
-import phi.*;
 //Namespace, Environment pair
 
 public class Context {

@@ -1,17 +1,23 @@
 package phi;
-import phi.*;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class TypeApply extends TypeExpression {
-    boolean variable = false; //TODO: Expand with container variable if can.
-    Type constructor = null;
-    ArrayList<TypeExpression> args = new ArrayList();
+    final Type constructor;
+    ArrayList<TypeExpression> args = new ArrayList<TypeExpression>();
     public TypeApply(Type constructor) {
         this.constructor = constructor;
     }
     public TypeApply(Type constructor, ArrayList<TypeExpression> args) {
         this.constructor = constructor;
         this.args = args;
+    }
+    public TypeApply(Type constructor, TypeExpression... args) {
+        this(constructor, new ArrayList<TypeExpression>(Arrays.asList(args)));
     }
 
     public boolean subtypes(TypeExpression otherExpr) { 
@@ -42,31 +48,54 @@ public class TypeApply extends TypeExpression {
     }
 
     private static class FlaggedNode {
-        TypeApply val;
-        boolean flag;
-        FlaggedNode(TypeApply val, boolean flag) {
+        public enum Flag {
+            LEFT,
+            RIGHT
+        }
+        final TypeApply val;
+        final Flag flag;
+        FlaggedNode(TypeApply val, Flag flag) {
             this.val = val;
             this.flag = flag;
         }
     }
 
+    private static ArrayList<TypeApply> coerce(ArrayList<TypeExpression> in) {
+        return (ArrayList<TypeApply>) ((ArrayList<?>) in);
+    }
+
+    public static TypeExpression intersect(TypeApply a, TypeApply b) {
+        ArrayList<TypeApply> aList = new ArrayList<TypeApply>();
+        aList.add(a);
+
+        ArrayList<TypeApply> bList = new ArrayList<TypeApply>();
+        bList.add(b);
+        return intersect(aList, bList);
+    }
+
     //Note: This will need to use the either type to intersect them
     //The idea is to search breadth-first, and only add upon the first time
-    public static TypeApply intersect(TypeApply a, TypeApply b) {
+    public static TypeExpression intersect(ArrayList<TypeApply> aList, ArrayList<TypeApply> bList) {
 
-        ArrayList<TypeExpression> result = new ArrayList();
-        Queue<FlaggedNode> Q = new LinkedList();
-        HashMap<Type, Boolean> loc = new HashMap();
-        HashMap<Type, TypeApply> primary = new HashMap();
-        HashMap<Type, TypeApply> secondary = new HashMap();
-        Q.add(new FlaggedNode(a, false));
-        Q.add(new FlaggedNode(b, true));
+        ArrayList<TypeExpression> result = new ArrayList<TypeExpression>();
+        Queue<FlaggedNode> Q = new LinkedList<FlaggedNode>();
+        HashMap<Type, FlaggedNode.Flag> loc = new HashMap<Type, FlaggedNode.Flag>();
+        HashMap<Type, TypeApply> primary = new HashMap<Type, TypeApply>();
+        HashMap<Type, TypeApply> secondary = new HashMap<Type, TypeApply>();
+
+        for (TypeApply a : aList) {
+            Q.add(new FlaggedNode(a, FlaggedNode.Flag.LEFT));
+        }
+        for (TypeApply b : bList) {
+            Q.add(new FlaggedNode(b, FlaggedNode.Flag.RIGHT));
+        }
+
         //While there are things in the queue
         while (Q.peek() != null) {
             FlaggedNode current = Q.remove();
             if (loc.containsKey(current.val.constructor)) {
                 //If we've seen it before
-                boolean otherFlag = loc.get(current.val.constructor);
+                FlaggedNode.Flag otherFlag = loc.get(current.val.constructor);
                 if (current.flag != otherFlag) {
                     //Great, we have something in the intersection that's not in the primary index
                     updateIndex(secondary, current);
@@ -90,8 +119,17 @@ public class TypeApply extends TypeExpression {
         return Common.OptionType(result);
     }
 
-    private static TypeApply argIntersect(TypeApply a, TypeApply b) {
-        ArrayList<TypeExpression> args = new ArrayList();
+    //For concrete types, intersect the arguments. For virtual types,
+    //this will instead perform an intersect on all subtypes
+    private static TypeExpression argIntersect(TypeApply a, TypeApply b) {
+
+        if (a.constructor.isVirtual) {
+            //TODO: Add equality check first, for niceness
+            ////SHHH, everything will be fine...
+            return intersect(coerce(a.getImmediateSubtypes()), coerce(b.getImmediateSubtypes()));
+        }
+
+        ArrayList<TypeExpression> args = new ArrayList<TypeExpression>();
         for (int i = 0; i < a.args.size(); i++) {
             TypeApply aArg = (TypeApply) a.args.get(i);
             TypeApply bArg = (TypeApply) b.args.get(i);
@@ -102,7 +140,7 @@ public class TypeApply extends TypeExpression {
 
     //Union each of the arguments of the two typeapplys
     private static TypeApply argUnion(TypeApply a, TypeApply b) {
-        ArrayList<TypeExpression> args = new ArrayList();
+        ArrayList<TypeExpression> args = new ArrayList<TypeExpression>();
         for (int i = 0; i < a.args.size(); i++) {
             args.add(Common.OptionType(a.args.get(i), b.args.get(i)));
         }
@@ -122,13 +160,17 @@ public class TypeApply extends TypeExpression {
         }
     }
 
-    private static void addAllSubtypes(Queue Q, FlaggedNode current) {
+    private static void addAllSubtypes(Queue<FlaggedNode> Q, FlaggedNode current) {
         //Then, add all of its children to the queue
-        ArrayList<TypeExpression> immediateSubtypes = current.val.constructor.lattice.getImmediateSubtypes(current.val);
+        ArrayList<TypeExpression> immediateSubtypes = current.val.getImmediateSubtypes();
         for (TypeExpression subExpr : immediateSubtypes) {
             TypeApply sub = (TypeApply) subExpr;
             Q.add(new FlaggedNode(sub, current.flag));
         }
+    }
+
+    public ArrayList<TypeExpression> getImmediateSubtypes() {
+        return this.constructor.lattice.getImmediateSubtypes(this);
     }
 
     public boolean equals(Object other) {

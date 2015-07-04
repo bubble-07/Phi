@@ -1,16 +1,11 @@
 package phitest;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-
-import phi.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.junit.Ignore;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+
+import phi.Main;
+import phi.Node;
 
 public class test_Main {
 

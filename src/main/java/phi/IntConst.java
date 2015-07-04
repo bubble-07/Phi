@@ -1,5 +1,4 @@
 package phi;
-import phi.*;
 
 public class IntConst extends Constant {
     Integer val = null;

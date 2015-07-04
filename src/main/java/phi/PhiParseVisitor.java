@@ -1,16 +1,11 @@
 package phi;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-import org.antlr.v4.runtime.tree.*;
+import java.util.List;
+
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-
-import phi.PHIParser;
-import phi.Node;
-import java.util.*;
+import phi.antlr.PHIParser;
+import phi.antlr.PHIVisitor;
 
 public class PhiParseVisitor extends AbstractParseTreeVisitor<Node>
                     implements PHIVisitor<Node> {

@@ -1,6 +1,4 @@
 package phi;
-import java.util.*;
-import phi.*;
 
 //Typed expression. Used for defining types of parameters and their corresponding expressions
 public class TypedExpr {

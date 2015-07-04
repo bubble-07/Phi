@@ -1,9 +1,8 @@
 package phi;
 import java.util.*;
-import phi.*;
 
 public class Environment {
-    HashMap<String, TypeExpression> context = new HashMap();
+    HashMap<String, TypeExpression> context = new HashMap<String, TypeExpression>();
     Environment parent = null;
 
     public Environment() {

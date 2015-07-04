@@ -1,11 +1,10 @@
 package phi;
-import phi.*;
 import java.util.*;
 
 public class Function extends Expression {
     Context parentContext = null;
     String name = null;
-    ArrayList<Parameter> params = new ArrayList(); 
+    ArrayList<Parameter> params = new ArrayList<Parameter>(); 
     Environment env = new Environment();
     Expression body = null;
     Type retType = null;

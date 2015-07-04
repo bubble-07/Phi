@@ -1,13 +1,12 @@
 package phi;
-import phi.*;
 
 import java.util.*;
 
 
 //TODO: allow to have parent namespaces
 public class Namespace {
-    HashMap<String, Function> functable = new HashMap();
-    HashMap<String, Type> typetable = new HashMap(); 
+    HashMap<String, Function> functable = new HashMap<String, Function>();
+    HashMap<String, Type> typetable = new HashMap<String, Type>();
     
     public Namespace(Node in) {
         //First, load in all of the names of the functions (so reordering can occur)

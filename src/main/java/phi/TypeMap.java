@@ -1,5 +1,4 @@
 package phi;
-import phi.*;
 import java.util.*;
 //Represents a mapping from a supertype to a subtype
 public class TypeMap {
@@ -13,7 +12,7 @@ public class TypeMap {
     //Returns null if the pattern match failed
     public TypeExpression apply(TypeExpression recieved) {
         //Ready a dictionary for type parameters
-        HashMap<TypeParam, TypeExpression> paramMap = new HashMap();
+        HashMap<TypeParam, TypeExpression> paramMap = new HashMap<TypeParam, TypeExpression>();
         //Match input against expected
         boolean match = matchRecursive(paramMap, input, recieved); 
         if (!match) {
@@ -31,6 +30,8 @@ public class TypeMap {
             mapping.put((TypeParam) expected, recieved);
             return true;
         }
+
+        //TODO: split this up among various type expression classes
 
         //Otherwise, must be a typeapply
         TypeApply pattern = (TypeApply) expected;
@@ -61,7 +62,7 @@ public class TypeMap {
         //Otherwise, deal with the container
         TypeApply container = (TypeApply) output;
 
-        ArrayList<TypeExpression> resultArgs = new ArrayList();
+        ArrayList<TypeExpression> resultArgs = new ArrayList<TypeExpression>();
         //Go through the container arguments, copy, and instantiate
         for (TypeExpression arg : container.args) {
             resultArgs.add(instantiateRecursive(mapping, arg));

@@ -1,10 +1,9 @@
 package phi;
-import phi.*;
 import java.util.*;
 
 public class Apply extends Expression {
     Expression f = null;
-    ArrayList<Expression> args = new ArrayList();
+    ArrayList<Expression> args = new ArrayList<Expression>();
     public Apply(Function f, ArrayList<Expression> args) {
         this.f = f;
         this.args = args;

@@ -1,5 +1,4 @@
 package phi;
-import phi.*;
 
 public class StringConst extends Constant {
     String val = null;

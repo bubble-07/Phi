@@ -1,5 +1,4 @@
 package phi;
-import phi.*;
 
 public class FloatConst extends Constant {
     Float val = null;

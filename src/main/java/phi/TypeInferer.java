@@ -1,6 +1,4 @@
 package phi;
-import phi.*;
-import java.util.*;
 
 //TODO: Expand this into more than a test
 public class TypeInferer {
@@ -13,8 +11,10 @@ public class TypeInferer {
         loadStdlibTypes();
         System.out.println(TypeApply.intersect(new TypeApply(Number), new TypeApply(Any)));
         System.out.println((new TypeApply(Any)).subtypes(new TypeApply(Number)));
+        System.out.println(TypeApply.intersect(Common.OptionType(new TypeApply(Number), new TypeApply(Int)),
+                                               Common.OptionType(new TypeApply(Int), new TypeApply(Number))));
         for (Function f : in.functable.values()) {
-            inferFunction(f);
+            //inferFunction(f);
         }
     }
 
