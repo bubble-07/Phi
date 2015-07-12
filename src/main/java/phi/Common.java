@@ -52,4 +52,5 @@ public class Common {
         Either.addSubtype(EitherApply, b);
         return Either;
     }
+    static Type Any = new Type("Any");
 }

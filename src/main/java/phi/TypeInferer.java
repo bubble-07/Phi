@@ -2,15 +2,14 @@ package phi;
 
 //TODO: Expand this into more than a test
 public class TypeInferer {
-    Type Any;
     Type Float;
     Type Int;
     Type Number;
 
     public TypeInferer(Namespace in) {
         loadStdlibTypes();
-        System.out.println(TypeApply.intersect(new TypeApply(Number), new TypeApply(Any)));
-        System.out.println((new TypeApply(Any)).subtypes(new TypeApply(Number)));
+        System.out.println(TypeApply.intersect(new TypeApply(Number), new TypeApply(Common.Any)));
+        System.out.println((new TypeApply(Common.Any)).subtypes(new TypeApply(Number)));
         System.out.println(TypeApply.intersect(Common.OptionType(new TypeApply(Number), new TypeApply(Int)),
                                                Common.OptionType(new TypeApply(Int), new TypeApply(Number))));
         for (Function f : in.functable.values()) {
@@ -20,11 +19,10 @@ public class TypeInferer {
 
 
     public void loadStdlibTypes() {
-        Any = new Type("Any");
         Number = new Type("Number");
         Float = new Type("Float");
         Int = new Type("Int");
-        quickSubtype(Number, Any);
+        quickSubtype(Number, Common.Any);
         quickSubtype(Float, Number);
         quickSubtype(Int, Number);
         //TODO: Add subtyping for Either type

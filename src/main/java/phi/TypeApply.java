@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class TypeApply extends TypeExpression {
+public class TypeApply extends ConcreteType {
     final Type constructor;
     ArrayList<TypeExpression> args = new ArrayList<TypeExpression>();
     public TypeApply(Type constructor) {
@@ -20,14 +20,29 @@ public class TypeApply extends TypeExpression {
         this(constructor, new ArrayList<TypeExpression>(Arrays.asList(args)));
     }
 
-    public boolean subtypes(TypeExpression otherExpr) { 
+    public ConcreteType upperBound() {
+        ArrayList<TypeExpression> concreteArgs = new ArrayList<TypeExpression>();
+        for (TypeExpression arg : args) {
+            concreteArgs.add(arg.upperBound());
+        }
+        return new TypeApply(this.constructor, concreteArgs);
+    }
+
+    //TODO: Have special things for heterogenous subtyping
+    public boolean subtypes(ConcreteType otherExpr) {
+
+        if (!(otherExpr instanceof TypeApply)) {
+            return false;
+        }
+
+
         //Check if constructors are equal. If so, then must check args
         TypeApply other = (TypeApply) otherExpr;
         if (this.constructor.equals(other.constructor)) {
             for (int i = 0; i < args.size(); i++) {
                 //TODO: Fix this typecasting thing
                 TypeApply arg = (TypeApply) args.get(i);
-                if (!arg.subtypes(other.args.get(i))) {
+                if (!arg.subtypes(other.args.get(i).upperBound())) {
                     //If one of the arguments is not a subtype, fail
                     return false;
                 }
@@ -38,7 +53,7 @@ public class TypeApply extends TypeExpression {
         //If not the same constructor, then must generate the other's immediate subtypes
         ArrayList<TypeExpression> immediateSubtypes = other.constructor.lattice.getImmediateSubtypes(other);
         for (TypeExpression sub : immediateSubtypes) {
-            if (subtypes(sub)) {
+            if (subtypes(sub.upperBound())) {
                 //Must subtype some subtype of the other
                 return true;
             }
@@ -62,6 +77,14 @@ public class TypeApply extends TypeExpression {
 
     private static ArrayList<TypeApply> coerce(ArrayList<TypeExpression> in) {
         return (ArrayList<TypeApply>) ((ArrayList<?>) in);
+    }
+
+    //TODO: Handle fun edge cases with this
+    public ConcreteType intersect(ConcreteType other) {
+        if (!(other instanceof TypeApply)) {
+            return new BottomType();
+        }
+        return (ConcreteType) intersect(this, (TypeApply) other);
     }
 
     public static TypeExpression intersect(TypeApply a, TypeApply b) {
