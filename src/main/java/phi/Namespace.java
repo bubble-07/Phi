@@ -44,6 +44,13 @@ public class Namespace {
             case "Type":
                 loadTypeDef(in);
                 return;
+            case "Subs":
+                loadSubDef(in);
+                return;
+            case "Sups":
+                loadSupDef(in);
+                return;
+
             //TODO: ensure that all typing relations are SUBTYPES after parsing
             default: 
                 //TODO: implement this!
@@ -51,6 +58,28 @@ public class Namespace {
                 return;
         }
     }
+
+    private void loadSupDef(Node in) {
+        //Just call loadSubDef with flipped arguments
+        Node subs = new Node("Subs").add(in.children.get(1)).add(in.children.get(0));
+        loadSubDef(subs);
+    }
+
+    private void loadSubDef(Node in) {
+        //TODO: Add error handling!
+
+        TypingEnvironment env = new TypingEnvironment();
+
+        TypeExpression sub = parseType(in.get(0), env);
+        TypeExpression sup = parseType(in.get(1), env);
+
+        if (!(sup instanceof TypeApply)) {
+            //TODO: error?
+        }
+        TypeApply applySup = (TypeApply) sup;
+        applySup.constructor.addSubtype(applySup, sub);
+    }
+
     private void loadFuncDef(Node in) {
         Function f = functable.get(Function.getNameFromDef(in));
         f.loadFromDef(in, new Context(this, null));

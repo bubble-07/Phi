@@ -53,4 +53,43 @@ public class Common {
         return Either;
     }
     static Type Any = new Type("Any");
+
+    public class TypingEnvironment {
+        public Map<String, TypeParam> params = new HashMap<String, TypeParam>();
+        public TypeParam newParam(String in) {
+            //TODO: Add support for upper bounds!
+            TypeParam result = new TypeParam(in);
+            params.put(in, result);
+            return result;
+        }
+        public TypeParam get(String in) {
+            if (params.containsKey(in)) {
+                return params.get(in);
+            }
+            return newParam(in);
+        }
+    }
+
+    public TypeExpression parseType(Node in, TypingEnvironment env) {
+        //TODO: Reordering a thing?
+        if (in.label.equals("Expr") || in.label.equals("ReorderableExpr")) {
+            //TODO: error handling!
+            Type constructor = typetable.get(in.get(0).label);
+            ArrayList<TypeExpression> args = new ArrayList<TypeExpression>();
+            for (int i = 1; i < in.children.size(); i++) {
+                args.add(parseType(in.get(i), env));
+            }
+            return new TypeApply(constructor, args);
+        }
+        else {
+            if (typetable.containsKey(in.label)) {
+                //Must be a unary type
+                return new TypeApply(typetable.get(in.label));
+            }
+            else {
+                //Must be a type variable
+                return env.get(in.label);
+            }
+        }
+    }
 }

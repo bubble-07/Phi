@@ -31,6 +31,10 @@ public class Node {
         return in;
     }
     
+    public Node get(int i) {
+        return this.children.get(i);
+    }
+    
     public String toString() {
         String result = serializeRecursive("");
         if (result.length() == 0) {
